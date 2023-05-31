@@ -1,0 +1,13 @@
+*.o
+*.d
+*.out
+*.a
+*.so
+
+.deps
+.objs
+
+.idea
+cmake-build*
+
+ft_nm
