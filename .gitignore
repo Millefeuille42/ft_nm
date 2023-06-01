@@ -4,6 +4,10 @@
 *.a
 *.so
 
+*.log
+
+test
+
 .deps
 .objs
 

@@ -1,8 +1,26 @@
 ######### Sources #########
 
-SOURCES	= 		cmd/main.c \
+SOURCES	= 		pkg/ft_string/ft_string_copy.c\
+                pkg/ft_string/ft_string_concat.c\
+                pkg/ft_string/get_after_n_sep.c\
+                pkg/ft_string/ft_strcmp.c\
+                pkg/ft_string/ft_to_lower.c\
+                pkg/ft_string/ft_strlen.c\
+                pkg/ft_string/ft_is_alnum.c\
+                pkg/ft_string/ft_split.c\
+                pkg/ft_string/ft_is_alpha.c\
+                pkg/ft_string/string.c\
+                pkg/ft_memory/zeroed_malloc.c\
+                pkg/ft_memory/ft_bzero.c\
+                pkg/ft_memory/del_array.c\
+                pkg/ft_memory/safe_free.c\
+                cmd/main.c\
 
-HEADERS	=		cmd/ft_ping.h \
+
+HEADERS	=		 cmd/ft_nm.h\
+                 pkg/ft_string/ft_string.h\
+                 pkg/ft_memory/ft_memory.h\
+
 
 HEADERS_DIRECTORIES	=	cmd \
 						pkg \
