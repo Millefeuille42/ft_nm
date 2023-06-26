@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -Werror -Wextra -pedantic")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Werror -Wextra -pedantic")
 
+add_definitions(-DFT_NM_DEV=1 -DFT_NM_BUILD_64=1)
+
 set(SOURCE_FT_NM
 		cmd/main.c
 		cmd/ft_nm.h
@@ -27,7 +29,13 @@ set(SOURCE_FT_NM
 		pkg/ft_string/ft_is_alpha.c
 		pkg/ft_string/string.c
 
-		)
+		pkg/ft_print/ft_putchar.c
+		pkg/ft_print/ft_putstr.c
+		pkg/ft_print/ft_putnbr_base.c
+		pkg/ft_print/ft_putnbr.c
+		pkg/ft_print/ft_print.h
+		pkg/ft_print/ft_putnbr_base_padded.c
+		cmd/var_arch.c cmd/utils.c)
 
 add_executable(ft_nm ${SOURCE_FT_NM})
 target_link_libraries(ft_nm LINK_PUBLIC)

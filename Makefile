@@ -14,13 +14,20 @@ SOURCES	= 		pkg/ft_string/ft_string_copy.c\
                 pkg/ft_memory/ft_bzero.c\
                 pkg/ft_memory/del_array.c\
                 pkg/ft_memory/safe_free.c\
-                cmd/main.c\
+                pkg/ft_print/ft_putchar.c\
+                pkg/ft_print/ft_putstr.c\
+                pkg/ft_print/ft_putnbr_base.c\
+                pkg/ft_print/ft_putnbr.c\
+				pkg/ft_print/ft_putnbr_base_padded.c\
+				cmd/utils.c\
+				cmd/main.c\
 
+VAR_SOURCES =	cmd/var_arch.c\
 
 HEADERS	=		 cmd/ft_nm.h\
                  pkg/ft_string/ft_string.h\
                  pkg/ft_memory/ft_memory.h\
-
+                 pkg/ft_print/ft_print.h\
 
 HEADERS_DIRECTORIES	=	cmd \
 						pkg \
@@ -58,15 +65,33 @@ DEPS_DIR	= .deps/
 OBJS	=	$(addprefix $(OBJS_DIR), $(SOURCES:.$(SOURCES_EXTENSION)=.o))
 DEPS	=	$(addprefix $(DEPS_DIR), $(SOURCES:.$(SOURCES_EXTENSION)=.d))
 
+32_SOURCES = $(addsuffix _f32, $(basename $(VAR_SOURCES)))
+32_OBJS = $(addprefix $(OBJS_DIR), $(addsuffix .o, $(32_SOURCES)))
+32_DEPS = $(addprefix $(DEPS_DIR), $(addsuffix .d, $(32_SOURCES)))
+
+64_SOURCES = $(addsuffix _f64, $(basename $(VAR_SOURCES)))
+64_OBJS = $(addprefix $(OBJS_DIR), $(addsuffix .o, $(64_SOURCES)))
+64_DEPS = $(addprefix $(DEPS_DIR), $(addsuffix .d, $(64_SOURCES)))
+
 #########  Rules  #########
 
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
+$(OBJS_DIR)%_f32.o: %.$(SOURCES_EXTENSION)
+	mkdir -p $(OBJS_DIR)$(dir $<)
+	@mkdir -p $(DEPS_DIR)$(dir $<)
+	$(COMPILE) $(FLAGS) -MMD -MP -MF $(DEPS_DIR)$*.d -c $< -o $@
+
+$(OBJS_DIR)%_f64.o: %.$(SOURCES_EXTENSION)
+	mkdir -p $(OBJS_DIR)$(dir $<)
+	@mkdir -p $(DEPS_DIR)$(dir $<)
+	$(COMPILE) $(FLAGS) -DFT_NM_BUILD_64 -MMD -MP -MF $(DEPS_DIR)$*.d -c $< -o $@
+
 all:	$(OBJS_DIR) $(DEPS_DIR) $(NAME) ## Compile project and dependencies
 
-$(NAME):	$(OBJS) ## Compile project
+$(NAME):	$(OBJS) $(32_OBJS) $(64_OBJS) ## Compile project
 			$(COMPILE) $(FLAGS) $^ -o $@
 
 clean: clean_deps clean_objs ## Delete object files
@@ -81,7 +106,7 @@ help: ## Print this help
 
 #########  Sub Rules  #########
 
-objs: $(OBJS_DIR) $(DEPS_DIR) $(OBJS) ## Compile object files
+objs: $(OBJS_DIR) $(DEPS_DIR) $(OBJS) $(32_OBJS) $(64_OBJS) ## Compile object files
 
 clean_deps: ## Delete dependency files and directory
 			$(DELETE) -r $(DEPS_DIR)
