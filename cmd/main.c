@@ -4,9 +4,8 @@
 
 #include "ft_nm.h"
 
-// TODO Test better for symbols types
-// TODO Add multi file support
-// TODO Add flag support
+// NOTE Test better for symbols types ?
+// TODO flags a g u r p
 
 elf32_h *get_32_header(int fd) {
 	elf32_h *header;
@@ -15,58 +14,87 @@ elf32_h *get_32_header(int fd) {
 }
 
 # if defined(FT_NM_DEV)
-int AArchF(main)(int fd, struct stat* file_stat) {
-	(void)fd;
-	(void)file_stat;
+int AArchF(main)(int fd, struct stat* file_stat, char *filename, char flags) {
+	ArchF(main)(fd, file_stat, filename, flags);
 	return 0;
 }
 #endif
 
-int main(int argc, char **argv) {
-	if (argc <= 1) {
-		return 1;
-	}
+int get_file_info(char *file, int *fd, struct stat *file_stat) {
+	*fd = open(file, O_RDONLY);
+	if (errno)
+		return errno;
 
-	int fd = open(argv[1], O_RDONLY);
-	if (errno) {
-		ft_fputstr(argv[0], 2);
-		ft_fputstr(": ", 2);
-		ft_fputstr(argv[1], 2);
-		ft_fputstr(": could not access file\n", 2);
-		close(fd);
+	if (fstat(*fd, file_stat) < 0) {
+		close(*fd);
 		return errno;
 	}
 
-	struct stat file_stat;
-	if (fstat(fd, &file_stat) < 0) {
-		close(fd);
-		return errno;
-	}
-
-	if (!S_ISREG(file_stat.st_mode)) {
-		ft_fputstr(argv[0], 2);
+	if (!S_ISREG(file_stat->st_mode)) {
+		ft_fputstr("ft_nm", 2);
 		ft_fputstr(": Warning: '", 2);
-		ft_fputstr(argv[1], 2);
+		ft_fputstr(file, 2);
 		ft_fputstr("' is not an ordinary file\n", 2);
+		close(*fd);
 		return 1;
 	}
+
+	return 0;
+}
+
+int parse_file(char *file, char flags) {
+	(void) flags;
+	int fd = 0;
+	struct stat file_stat;
+
+	int err = get_file_info(file, &fd, &file_stat);
+	if (err)
+		return err;
 
 	elf32_h *header = get_32_header(fd);
-	int err;
 	if (header->e_ident[EI_CLASS] == ELFCLASS32) {
-		err = f32_main(fd, &file_stat);
-	}
-	else {
-		err = f64_main(fd, &file_stat);
+		err = f32_main(fd, &file_stat, file, flags);
+	} else {
+		err = f64_main(fd, &file_stat, file, flags);
 	}
 
 	if (err < 0) {
-		ft_fputstr(argv[0], 2);
+		ft_fputstr("ft_nm", 2);
 		ft_fputstr(": ", 2);
-		ft_fputstr(argv[1], 2);
+		ft_fputstr(file, 2);
 		ft_fputstr(": no symbols\n", 2);
 	}
 
 	close(fd);
 	return 0;
+}
+
+int main(int argc, char **argv) {
+	nm_args args = parse_args(argc, argv);
+	if (args.err) {
+		if (args.err == -2)
+			return 1;
+		panic("allocation");
+	}
+
+	if (!args.files) {
+		char *file = ft_string("a.out");
+		if (!file)
+			panic("allocation");
+		args.files = new_list_element(file);
+		if (!args.files) {
+			safe_free((void **) &file);
+			panic("allocation");
+		}
+	}
+
+	ft_list *current = args.files;
+	for (; current; current = current->next) {
+		parse_file(current->data, args.flags);
+		if (errno) {
+			log_error(current->data);
+		}
+	}
+
+	return errno;
 }

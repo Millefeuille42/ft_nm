@@ -9,13 +9,16 @@ add_definitions(-DFT_NM_DEV=1 -DFT_NM_BUILD_64=1)
 
 set(SOURCE_FT_NM
 		cmd/main.c
+		cmd/var_arch.c
+		cmd/utils.c
+		cmd/parsing.c
 		cmd/ft_nm.h
 
 		pkg/ft_memory/del_array.c
 		pkg/ft_memory/ft_bzero.c
-		pkg/ft_memory/ft_memory.h
 		pkg/ft_memory/safe_free.c
 		pkg/ft_memory/zeroed_malloc.c
+		pkg/ft_memory/ft_memory.h
 
 		pkg/ft_string/ft_string_copy.c
 		pkg/ft_string/ft_string_concat.c
@@ -24,18 +27,29 @@ set(SOURCE_FT_NM
 		pkg/ft_string/ft_to_lower.c
 		pkg/ft_string/ft_strlen.c
 		pkg/ft_string/ft_is_alnum.c
-		pkg/ft_string/ft_string.h
 		pkg/ft_string/ft_split.c
 		pkg/ft_string/ft_is_alpha.c
 		pkg/ft_string/string.c
+		pkg/ft_string/ft_string.h
 
 		pkg/ft_print/ft_putchar.c
 		pkg/ft_print/ft_putstr.c
 		pkg/ft_print/ft_putnbr_base.c
 		pkg/ft_print/ft_putnbr.c
-		pkg/ft_print/ft_print.h
 		pkg/ft_print/ft_putnbr_base_padded.c
-		cmd/var_arch.c cmd/utils.c)
+		pkg/ft_print/ft_print.h
+
+		pkg/ft_list/delete_list.c
+		pkg/ft_list/list_accessors.c
+		pkg/ft_list/iter_list.c
+		pkg/ft_list/list_sort.c
+		pkg/ft_list/ft_list.c
+		pkg/ft_list/ft_list.h
+
+		pkg/ft_error/panic.c
+		pkg/ft_error/log_error.c
+		pkg/ft_error/ft_error.h
+		)
 
 add_executable(ft_nm ${SOURCE_FT_NM})
 target_link_libraries(ft_nm LINK_PUBLIC)

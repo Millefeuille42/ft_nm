@@ -17,6 +17,11 @@ int ArchF(check_signature)(elf_h *header) {
 			return 0;
 		}
 	}
+
+	if (header->e_machine != EM_386 && header->e_machine != EM_X86_64) {
+		errno = EINVAL;
+		return 0;
+	}
 	return 1;
 }
 
@@ -38,7 +43,7 @@ void ArchF(selection_sort)(elf_sym **arr, size_t size, char *strtab) {
 }
 
 // DONE A b c d r t vV wW ?
-// TODO g Ii n N p s
+// NOTE g Ii n N p s
 char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections) {
 	size_t bind = ELF_ST_BIND(symtab->st_info);
 	size_t type = ELF_ST_TYPE(symtab->st_info);
@@ -48,7 +53,7 @@ char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections) {
 	int readonly = !(symbol_section->sh_flags & SHF_WRITE);
 
 	if (symtab->st_shndx == SHN_ABS)
-		return 'A';
+		return 'a';
 
 	if (symbol_section->sh_type == SHT_NOBITS) {
 		return bind == STB_LOCAL ? 'b' : 'B';
@@ -119,7 +124,7 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 	}
 }
 
-int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size) {
+int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size, char *filename, char flags) {
 	char *buf = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (errno) return 1;
 
@@ -146,28 +151,30 @@ int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size) {
 		return -2;
 	}
 
+	if (NM_HAS_FLAG(flags, NM_FLAG_dirs)) {
+		ft_putchar('\n');
+		ft_putstr(filename);
+		ft_putstr(":\n");
+	}
 	ArchF(parse_symtab)(sh_strtab, sh_symtab, buf, sections);
 	munmap(buf, size);
 	return 0;
 }
 
-int ArchF(main)(int fd, struct stat* file_stat) {
+int ArchF(main)(int fd, struct stat* file_stat, char *filename, char flags) {
 	elf_h *header = ArchF(get_header)(fd);
 	if (errno) {
-		close(fd);
 		return errno;
 	}
 
 	if (!ArchF(check_signature)(header)) {
 		munmap(header, sizeof(elf_h));
-		close(fd);
 		return errno;
 	}
 
-	int err = ArchF(parse_section_headers)(header, fd, file_stat->st_size);
+	int err = ArchF(parse_section_headers)(header, fd, file_stat->st_size, filename, flags);
 	if (errno) {
 		munmap(header, sizeof(elf_h));
-		close(fd);
 		return errno;
 	}
 	if (err == -2) {

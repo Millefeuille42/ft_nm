@@ -19,15 +19,31 @@ SOURCES	= 		pkg/ft_string/ft_string_copy.c\
                 pkg/ft_print/ft_putnbr_base.c\
                 pkg/ft_print/ft_putnbr.c\
 				pkg/ft_print/ft_putnbr_base_padded.c\
+				pkg/ft_list/delete_list.c\
+                pkg/ft_list/list_accessors.c\
+                pkg/ft_list/iter_list.c\
+                pkg/ft_list/list_sort.c\
+                pkg/ft_list/ft_list.c\
+                pkg/ft_list/delete_list.c\
+                pkg/ft_list/list_accessors.c\
+                pkg/ft_list/iter_list.c\
+                pkg/ft_list/list_sort.c\
+                pkg/ft_list/ft_list.c\
+                pkg/ft_error/panic.c\
+                pkg/ft_error/log_error.c\
 				cmd/utils.c\
 				cmd/main.c\
+				cmd/parsing.c\
 
 VAR_SOURCES =	cmd/var_arch.c\
 
-HEADERS	=		 cmd/ft_nm.h\
-                 pkg/ft_string/ft_string.h\
-                 pkg/ft_memory/ft_memory.h\
-                 pkg/ft_print/ft_print.h\
+HEADERS	=		cmd/ft_nm.h\
+                pkg/ft_string/ft_string.h\
+                pkg/ft_memory/ft_memory.h\
+                pkg/ft_print/ft_print.h\
+                pkg/ft_list/ft_list.h\
+                pkg/ft_error/ft_error.h\
+                pkg/ft_list/ft_list.h\
 
 HEADERS_DIRECTORIES	=	cmd \
 						pkg \
