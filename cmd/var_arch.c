@@ -113,6 +113,15 @@ void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, char
 	ft_putchar('\n');
 }
 
+void ArchF(reverse_arr)(elf_sym **arr, size_t size) {
+	size_t i = 0;
+	for (size_t ri = size - 1; ri > i;) {
+		ft_swap((void **)&arr[i], (void **)&arr[ri]);
+		ri--;
+		i++;
+	}
+}
+
 void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh *sections, char flags) {
 	elf_sym *symtab = (elf_sym *) (buf + sh_symtab->sh_offset);
 	char *strtab = buf + sh_strtab->sh_offset;
@@ -128,6 +137,9 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 
 	if (!NM_HAS_FLAG(flags, NM_FLAG_p))
 		ArchF(selection_sort)(symtab_arr, size, strtab);
+
+	if (!NM_HAS_FLAG(flags, NM_FLAG_p) && NM_HAS_FLAG(flags, NM_FLAG_r))
+		ArchF(reverse_arr)(symtab_arr, size);
 
 	for (size_t i = 0; i < size; i++) {
 		symtab = symtab_arr[i];
