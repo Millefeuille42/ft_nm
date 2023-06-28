@@ -32,6 +32,7 @@ static char parse_flags(char flags, char *str) {
 				break;
 			case 'p':
 				NM_SET_FLAG(flags, NM_FLAG_p);
+				break;
 			case 'h':
 				print_help();
 				return -2;
