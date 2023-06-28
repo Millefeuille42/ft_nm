@@ -96,6 +96,9 @@ void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, char
 			return;
 	}
 
+	if (NM_HAS_FLAG(flags, NM_FLAG_g) && bind == STB_LOCAL)
+		return;
+
 	if (symtab->st_value > 0 || ArchF(symtab_to_letter)(symtab, sections) == 'T' || (NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
 		ft_putnbr_base_padded(symtab->st_value, HEX_CHARSET, HEX_SIZE, '0', -ELF_ST_PAD_SIZE);
 	else
