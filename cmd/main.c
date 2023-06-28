@@ -5,7 +5,7 @@
 #include "ft_nm.h"
 
 // NOTE Test better for symbols types ?
-// TODO flags a g u r p
+// TODO flags g u r p
 
 elf32_h *get_32_header(int fd) {
 	elf32_h *header;

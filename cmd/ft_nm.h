@@ -63,10 +63,12 @@ typedef struct s_nm_args {
 	char flags;
 } nm_args;
 
+nm_args parse_args(int argc, char **argv);
+
 void ft_swap(void **x, void **y);
 int num_sort(void *a, void *b);
 int string_alpha_sort(void *a, void *b);
-nm_args parse_args(int argc, char **argv);
+int string_dumb_alpha_sort(void *a, void *b);
 
 int ArchF(main)(int fd, struct stat *file_stat, char *filename, char flags);
 int AArchF(main)(int fd, struct stat *file_stat, char *filename, char flags);

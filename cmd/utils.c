@@ -34,9 +34,23 @@ int string_alpha_sort(void *a, void *b) {
 		char a_char = (char) ft_tolower(a_string[a_i]);
 		char b_char = (char) ft_tolower(b_string[b_i]);
 		if (a_char != b_char)
-			return (char) (a_char < b_char);
+			return (a_char < b_char);
 		a_i++;
 		b_i++;
 	}
+	return ft_strlen(a_string) < ft_strlen(b_string);
+}
+
+int string_dumb_alpha_sort(void *a, void *b) {
+	char *a_string = a;
+	char *b_string = b;
+
+	for (; *a_string && *b_string;) {
+		if (*a_string != *b_string)
+			return *a_string < *b_string;
+		a_string++;
+		b_string++;
+	}
+
 	return ft_strlen(a_string) < ft_strlen(b_string);
 }

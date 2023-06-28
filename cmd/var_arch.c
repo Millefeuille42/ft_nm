@@ -34,7 +34,7 @@ void ArchF(selection_sort)(elf_sym **arr, size_t size, char *strtab) {
 			if (are_equal && num_sort(&arr[y]->st_value, &arr[min_i]->st_value))
 				min_i = y;
 
-			if (!are_equal && string_alpha_sort(arr[y]->st_name + strtab, arr[min_i]->st_name + strtab))
+			if (!are_equal && string_dumb_alpha_sort(arr[y]->st_name + strtab, arr[min_i]->st_name + strtab))
 				min_i = y;
 		}
 
@@ -86,7 +86,28 @@ char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections) {
 	return '?';
 }
 
-void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh *sections) {
+void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, char flags) {
+	size_t bind = ELF_ST_BIND(symtab->st_info);
+	size_t type = ELF_ST_TYPE(symtab->st_info);
+	char letter = ArchF(symtab_to_letter)(symtab, sections);
+
+	if ((type == STT_FILE || (!type && !bind)) && symtab->st_value <= 0) {
+		if (!(NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
+			return;
+	}
+
+	if (symtab->st_value > 0 || ArchF(symtab_to_letter)(symtab, sections) == 'T' || (NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
+		ft_putnbr_base_padded(symtab->st_value, HEX_CHARSET, HEX_SIZE, '0', -ELF_ST_PAD_SIZE);
+	else
+		ft_putstr(ELF_ST_PAD_STR);
+	ft_putchar(' '),
+	ft_putchar(letter);
+	ft_putchar(' '),
+	ft_putstr(strtab + symtab->st_name);
+	ft_putchar('\n');
+}
+
+void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh *sections, char flags) {
 	elf_sym *symtab = (elf_sym *) (buf + sh_symtab->sh_offset);
 	char *strtab = buf + sh_strtab->sh_offset;
 	size_t size = sh_symtab->sh_size / sh_symtab->sh_entsize;
@@ -103,24 +124,7 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 
 	for (size_t i = 0; i < size; i++) {
 		symtab = symtab_arr[i];
-		size_t bind = ELF_ST_BIND(symtab->st_info);
-		size_t type = ELF_ST_TYPE(symtab->st_info);
-
-		if ((type == STT_FILE || (!type && !bind)) && symtab->st_value <= 0)
-			continue;
-
-		if (symtab->st_value > 0 || ArchF(symtab_to_letter)(symtab, sections) == 'T')
-			//printf("%.16lx", symtab->st_value);
-			ft_putnbr_base_padded(symtab->st_value, HEX_CHARSET, HEX_SIZE, '0', -ELF_ST_PAD_SIZE);
-			//ft_putnbr_base(symtab->st_value, HEX_CHARSET, HEX_SIZE);
-		else
-			ft_putstr(ELF_ST_PAD_STR);
-		//printf(" %c %lu %lu %lu %s\n", symtab_to_letter(symtab, sections), type, bind, sh_symtab->sh_flags, strtab + symtab->st_name);
-		ft_putchar(' '),
-		ft_putchar(ArchF(symtab_to_letter)(symtab, sections));
-		ft_putchar(' '),
-		ft_putstr(strtab + symtab->st_name);
-		ft_putchar('\n');
+		ArchF(display_symtab)(symtab, strtab, sections, flags);
 	}
 }
 
@@ -156,7 +160,7 @@ int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size, char *filen
 		ft_putstr(filename);
 		ft_putstr(":\n");
 	}
-	ArchF(parse_symtab)(sh_strtab, sh_symtab, buf, sections);
+	ArchF(parse_symtab)(sh_strtab, sh_symtab, buf, sections, flags);
 	munmap(buf, size);
 	return 0;
 }
