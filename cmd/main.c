@@ -95,5 +95,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	delete_list_forward(&args.files, safe_free);
+
 	return errno;
 }

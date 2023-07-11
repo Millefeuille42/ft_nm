@@ -145,6 +145,8 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 		symtab = symtab_arr[i];
 		ArchF(display_symtab)(symtab, strtab, sections, flags);
 	}
+
+	safe_free((void **)&symtab_arr);
 }
 
 int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size, char *filename, char flags) {
