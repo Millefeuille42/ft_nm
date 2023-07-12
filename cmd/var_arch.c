@@ -44,12 +44,13 @@ void ArchF(selection_sort)(elf_sym **arr, size_t size, char *strtab) {
 
 // DONE A b c d r t vV wW ?
 // NOTE g Ii n N p s
-char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections) {
+char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections, void *max) {
 	size_t bind = ELF_ST_BIND(symtab->st_info);
 	size_t type = ELF_ST_TYPE(symtab->st_info);
 
-	size_t section_index = symtab->st_shndx;
-	elf_sh *symbol_section = &(sections[section_index]);
+	elf_sh *symbol_section = &(sections[symtab->st_shndx]);
+	if ((void *)symbol_section > max)
+		return ' ';
 	int readonly = !(symbol_section->sh_flags & SHF_WRITE);
 
 	if (symtab->st_shndx == SHN_ABS)
@@ -86,10 +87,10 @@ char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections) {
 	return '?';
 }
 
-void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, char flags) {
+void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, void *max, char flags) {
 	size_t bind = ELF_ST_BIND(symtab->st_info);
 	size_t type = ELF_ST_TYPE(symtab->st_info);
-	char letter = ArchF(symtab_to_letter)(symtab, sections);
+	char letter = ArchF(symtab_to_letter)(symtab, sections, max);
 
 	if ((type == STT_FILE || (!type && !bind)) && symtab->st_value <= 0) {
 		if (!(NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
@@ -102,7 +103,7 @@ void ArchF(display_symtab)(elf_sym *symtab, char *strtab, elf_sh *sections, char
 	if (NM_HAS_FLAG(flags, NM_FLAG_u) && symtab->st_shndx != SHN_UNDEF)
 		return;
 
-	if (symtab->st_value > 0 || ArchF(symtab_to_letter)(symtab, sections) == 'T' || (NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
+	if (symtab->st_value > 0 || ArchF(symtab_to_letter)(symtab, sections, max) == 'T' || (NM_HAS_FLAG(flags, NM_FLAG_a) && letter == 'a'))
 		ft_putnbr_base_padded(symtab->st_value, HEX_CHARSET, HEX_SIZE, '0', -ELF_ST_PAD_SIZE);
 	else
 		ft_putstr(ELF_ST_PAD_STR);
@@ -122,10 +123,13 @@ void ArchF(reverse_arr)(elf_sym **arr, size_t size) {
 	}
 }
 
-void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh *sections, char flags) {
+void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, void *max, elf_sh *sections, char flags) {
 	elf_sym *symtab = (elf_sym *) (buf + sh_symtab->sh_offset);
 	char *strtab = buf + sh_strtab->sh_offset;
 	size_t size = sh_symtab->sh_size / sh_symtab->sh_entsize;
+
+	if ((void *)symtab >= max || (void *)strtab > max)
+		return;
 
 	elf_sym **symtab_arr = malloc(size * sizeof(elf_sym *));
 	if (!symtab_arr) return;
@@ -143,7 +147,7 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 
 	for (size_t i = 0; i < size; i++) {
 		symtab = symtab_arr[i];
-		ArchF(display_symtab)(symtab, strtab, sections, flags);
+		ArchF(display_symtab)(symtab, strtab, sections, max, flags);
 	}
 
 	safe_free((void **)&symtab_arr);
@@ -152,10 +156,16 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, elf_sh
 int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size, char *filename, char flags) {
 	char *buf = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (errno) return 1;
+	void *max = buf + size;
 
 	elf_sh *sections = (elf_sh *)(buf + header->e_shoff);
 	elf_sh *sh_shstrtab = sections + header->e_shstrndx;
+	if ((void *)sections >= max || (void *)sh_shstrtab > max)
+		return -2;
+
 	char *shstrtab = buf + sh_shstrtab->sh_offset;
+	if ((void *)shstrtab >= max)
+		return -2;
 
 	elf_sh *sh_strtab = NULL;
 	elf_sh *sh_symtab = NULL;
@@ -181,7 +191,7 @@ int ArchF(parse_section_headers)(elf_h *header, int fd, size_t size, char *filen
 		ft_putstr(filename);
 		ft_putstr(":\n");
 	}
-	ArchF(parse_symtab)(sh_strtab, sh_symtab, buf, sections, flags);
+	ArchF(parse_symtab)(sh_strtab, sh_symtab, buf, buf + size, sections, flags);
 	munmap(buf, size);
 	return 0;
 }
