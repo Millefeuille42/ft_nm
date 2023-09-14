@@ -56,14 +56,14 @@ char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections, void *max) {
 	if (symtab->st_shndx == SHN_ABS)
 		return 'a';
 
-	if (symbol_section->sh_type == SHT_NOBITS) {
-		return bind == STB_LOCAL ? 'b' : 'B';
-	}
-
 	if (bind == STB_WEAK) {
 		if (type == STT_OBJECT)
 			return symtab->st_value <= 0 ? 'v' : 'V';
 		return symtab->st_value <= 0 ? 'w' : 'W';
+	}
+
+	if (symbol_section->sh_type == SHT_NOBITS) {
+		return bind == STB_LOCAL ? 'b' : 'B';
 	}
 
 	if (symtab->st_shndx == SHN_UNDEF)
