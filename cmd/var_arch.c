@@ -147,6 +147,7 @@ void ArchF(parse_symtab)(elf_sh *sh_strtab, elf_sh *sh_symtab, char *buf, void *
 
 	for (size_t i = 0; i < size; i++) {
 		symtab = symtab_arr[i];
+		if (!symtab->st_name) continue;
 		ArchF(display_symtab)(symtab, strtab, sections, max, flags);
 	}
 
