@@ -34,7 +34,7 @@ void ArchF(selection_sort)(elf_sym **arr, size_t size, char *strtab) {
 			if (are_equal && num_sort(&arr[y]->st_value, &arr[min_i]->st_value))
 				min_i = y;
 
-			if (!are_equal && strcmp(arr[y]->st_name + strtab, arr[min_i]->st_name + strtab))
+			if (!are_equal && string_dumb_alpha_sort(arr[y]->st_name + strtab, arr[min_i]->st_name + strtab))
 				min_i = y;
 		}
 
