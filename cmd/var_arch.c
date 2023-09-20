@@ -50,7 +50,7 @@ char ArchF(symtab_to_letter)(elf_sym *symtab, elf_sh *sections, void *max) {
 
 	elf_sh *symbol_section = &(sections[symtab->st_shndx]);
 	if ((void *)symbol_section > max)
-		return ' ';
+		return 'a';
 	int readonly = !(symbol_section->sh_flags & SHF_WRITE);
 
 	if (symtab->st_shndx == SHN_ABS)
