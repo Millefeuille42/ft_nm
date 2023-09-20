@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
 
 	ft_list *current = args.files;
 	for (; current; current = current->next) {
+		errno = 0;
 		parse_file(current->data, args.flags);
 		if (errno) {
 			log_error(current->data);
